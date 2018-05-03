@@ -774,7 +774,7 @@ class imagelabeler(object):
         else:
             self.img_label[self.img_pointer-1][0]=2
             self.change_browser()
-            self.next_button_func()
+            # self.next_button_func()
 
     def label_as_3(self):
         if self.wait:
@@ -787,7 +787,7 @@ class imagelabeler(object):
         else:
             self.img_label[self.img_pointer-1][0]=3
             self.change_browser()
-            self.next_button_func()
+            # self.next_button_func()
 
     ### other functons ###
     def mkdir(self,path):
