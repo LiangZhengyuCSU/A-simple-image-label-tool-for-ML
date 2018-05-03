@@ -462,13 +462,13 @@ class imagelabeler(object):
 
                 calibrate_BBpath = self.work_dir + '\\calibratedBoundingbox'
                 self.mkdir(calibrate_BBpath)
-                f = open(calibrate_BBpath+'\\before.txt', 'w')
+                f = open(calibrate_BBpath+'\\before.txt', 'a')
                 for i in self.calibrated_boundingbox_before:
                     for j in i:
                         f.write('%d '%j)
                     f.write('\n')
                 f.close()
-                f = open(calibrate_BBpath+'\\after.txt', 'w')
+                f = open(calibrate_BBpath+'\\after.txt', 'a')
                 for i in self.calibrated_boundingbox_after:
                     for j in i:
                         f.write('%d '%j)
