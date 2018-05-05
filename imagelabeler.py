@@ -357,10 +357,33 @@ class imagelabeler(object):
             self.init_img
             unlabel_image_path = askdirectory(title='Select the unlabeled images directory')
             if unlabel_image_path == '':
-                return  
+                return
+
+            try:#save the bounding box
+                bb = np.load(unlabel_image_path + '\\Boundingbox.npy')
+                bb = bb.tolist()
+                self.boundingbox_tank = bb
+
+            except:
+                messagebox.showwarning(title='warning',message='Error encounted when importing the bounding box')
+                return     
+
+            try:#save the source image
+                self.source_img = Image.open(os.path.join(unlabel_image_path, 'Source.jpg'))#import the source image
+            except:
+                messagebox.showwarning(title='warning',message='Error encounted when opening the source image')
+                return
+           
+
             imgname_list = glob.glob(os.path.join(unlabel_image_path, '*.jpg'))
+            imgname_list = self.resort_unlabelimg_path(imgname_list)
+            if len(imgname_list) != len(self.boundingbox_tank):
+                messagebox.showwarning(title='warning',message='The number of bounding boxes is differnet from the number of images')
+                return
             for i_name in imgname_list:
                 self.img_tank.append(Image.open(i_name))
+
+
             
             self.unlabelimg_imported = True
             # show the first image
@@ -480,19 +503,20 @@ class imagelabeler(object):
                 self.calibrated_boundingbox_before = []
                 self.calibrated_boundingbox_after = []
                 self.index_calibrated_img = []                   
-            # delete saved images
+            # delete saved images their boundingboxes
             new_img_tank = []
-            new_label_tank =[]
+            new_label_tank = []
+            new_boundingbox_tank = []
 
             for i in range(0,len(self.img_tank)):
                 if not Saved[i]:
                     new_img_tank.append(self.img_tank[i])
                     new_label_tank.append(self.img_label[i])
-                        
+                    new_boundingbox_tank.append(self.boundingbox_tank[i])    
             # assign unsaved imgs to the img tank
             self.img_tank = new_img_tank
             self.img_label = new_label_tank
-
+            self.boundingbox_tank = new_boundingbox_tank
 
             if not not new_img_tank:
                 self.change_browser()
@@ -542,7 +566,11 @@ class imagelabeler(object):
                         filenum = len(os.listdir(save_path))
                         save_name = save_path + '\\ %d.jpg' %(filenum+1)
                         img = self.img_tank[j]
-                        img.save(save_name)                    
+                        img.save(save_name)
+                    save_name = save_path + '\\Source.jpg'
+                    self.source_img.save(save_name)
+                    np.save(save_path +'\\Boundingbox',np.array(self.boundingbox_tank))
+
                     self.init_img()
 
 
@@ -720,8 +748,6 @@ class imagelabeler(object):
         
         if not self.src_imported and not self.unlabelimg_imported:
             messagebox.showwarning(title='warning',message='Please import some image first')
-        elif not self.src_imported and self.unlabelimg_imported:
-            messagebox.showwarning(title='warning',message='Can only revise image when the source image exist')
         elif not self.img_tank:
             messagebox.showwarning(title='warning',message='Please cut the image')
         elif self.img_pointer in self.index_calibrated_img:
@@ -805,4 +831,17 @@ class imagelabeler(object):
         else:
             # do nothing if the path exist
             return False
+    def resort_unlabelimg_path(self,pathlist):
+        new_pathlist = []
+        for i in range (0,len(pathlist)-1):
+            new_pathlist.append(None) 
+        for i in range (0,len(pathlist)):
+            filename = os.path.basename(pathlist[i])
+            imgindex_str = re.findall("\d+", filename)
+            if imgindex_str:
+                imgindex = int(imgindex_str[0])-1
+
+            new_pathlist[imgindex] = pathlist[i] 
+        return new_pathlist
+        
 
