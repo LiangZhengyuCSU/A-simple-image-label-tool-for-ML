@@ -12,26 +12,33 @@ class window_size_setting(tk.Toplevel):
         super().__init__()
         self.title('Settings')
         self.parent = parent # the parent window
-        self.window_size = [100,100]
-        self.stride = 25
-        self.geometry('380x140')
+        self.window_size = [400,400]
+        self.stride = 100
+        self.geometry('380x180')
         self.resizable(False,False)
         # the windowsize x row
         window_sizex_frame = tk.Frame(self)
         window_sizex_frame.pack(fill="x")
-        tk.Label(window_sizex_frame, text='Windowsize x (100 pixels for default) ：', width=30,
+        tk.Label(window_sizex_frame, text='Windowsize x (400 pixels for default) ：', width=30,
         font=('Times New Roman',12)).pack(side=tk.LEFT)
-        self.window_size_x = tk.IntVar(value=100)
+        self.window_size_x = tk.IntVar(value=400)
         tk.Entry(window_sizex_frame, textvariable=self.window_size_x, width=12).pack(side=tk.LEFT)
         
         # the windowsize y row
         window_sizey_frame = tk.Frame(self)
         window_sizey_frame.pack(fill="x", ipadx=1, ipady=1)
-        tk.Label(window_sizey_frame, text='Windowsize y (100 pixels for default) ：', width=30,
+        tk.Label(window_sizey_frame, text='Windowsize y (400 pixels for default) ：', width=30,
         font=('Times New Roman',12)).pack(side=tk.LEFT)
-        self.window_size_y = tk.IntVar(value=100)
+        self.window_size_y = tk.IntVar(value=400)
         tk.Entry(window_sizey_frame, textvariable=self.window_size_y, width=12).pack(side=tk.LEFT)
-        
+        # the stride row
+        stride_frame = tk.Frame(self)
+        stride_frame.pack(fill="x", ipadx=1, ipady=1)
+        tk.Label(stride_frame, text='Stride (100 pixels for default) ：', width=30,
+        font=('Times New Roman',12)).pack(side=tk.LEFT)
+        self.window_Stride = tk.IntVar(value=100)
+        tk.Entry(stride_frame, textvariable=self.window_Stride, width=12).pack(side=tk.LEFT)
+
         # the button row
         self.button_frame = tk.Frame(self)
         self.button_frame.pack(fill="x",pady=10)
@@ -50,6 +57,7 @@ class window_size_setting(tk.Toplevel):
         img_height = self.parent.source_img.height
         x = self.window_size_x.get()
         y = self.window_size_y.get()
+        S = self.window_Stride.get()
         if not isinstance(x,(int)) or not isinstance(y,(int)) or x <=0 or y<=0:
             self.warning_label.config(text='The windowsize can only be set as positive integer',
             fg='red')
@@ -63,7 +71,7 @@ class window_size_setting(tk.Toplevel):
             # update the argument
             self.parent.window_size[0] = x
             self.parent.window_size[1] = y
-            self.parent.stride = int(math.floor(min(x,y)/4))     
+            self.parent.stride = S
             self.destroy() # destroy the window
         
     def cancel(self):

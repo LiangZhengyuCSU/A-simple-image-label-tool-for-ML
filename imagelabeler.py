@@ -38,8 +38,8 @@ class imagelabeler(object):
         self.work_dir = None
         self.saved = False
         # sliding window algorithm arguments #
-        self.window_size = [100,100]
-        self.stride = 25
+        self.window_size = [400,400]
+        self.stride = 100
         # selective search algorithm arguments #
         self.scale = 200 
         self.sigma = 0.6 
@@ -386,6 +386,7 @@ class imagelabeler(object):
 
             
             self.unlabelimg_imported = True
+            self.src_imported = True
             # show the first image
             self.transfer_to_img(1)
             for _ in range(len(self.img_tank)):
@@ -788,7 +789,7 @@ class imagelabeler(object):
         else:
             self.img_label[self.img_pointer-1][0]=1
             self.change_browser()
-            self.next_button_func()
+            # self.next_button_func()
     def label_as_2(self):
         if self.wait:
             return
