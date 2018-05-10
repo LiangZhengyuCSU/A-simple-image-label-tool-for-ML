@@ -443,12 +443,12 @@ class imagelabeler(object):
                 self.wait = False
                 return
             
-            # choose an work_dir if the value of it is None
-            if self.work_dir is None:
-                workdir = askdirectory()
-                if workdir == '':
-                    return
-                self.work_dir = workdir
+            # choose an work_dir
+
+            workdir = askdirectory()
+            if workdir == '':
+                return
+            self.work_dir = workdir
 
             save_path = self.work_dir + '\\labeledImages'
             label = list(range(0,4))
@@ -464,7 +464,7 @@ class imagelabeler(object):
                 for j in range(0,len(self.img_tank)):
                     if self.img_label[j][0] == i:
                         filenum = len(os.listdir(tispath))
-                        save_name = tispath + '\\ %d.jpg' %(filenum+1)
+                        save_name = tispath + '\\%d.jpg' %(filenum+1)
                         img = self.img_tank[j]
                         img.save(save_name)
                         Saved[j] = True
@@ -477,8 +477,8 @@ class imagelabeler(object):
                     self.mkdir(path_after)
                     filenum_before = len(os.listdir(path_before))
                     filenum_after = len(os.listdir(path_after))
-                    save_name_before = path_before + '\\ %d.jpg' %(filenum_before+1)
-                    save_name_after = path_after + '\\ %d.jpg' %(filenum_after+1)
+                    save_name_before = path_before + '\\%d.jpg' %(filenum_before+1)
+                    save_name_after = path_after + '\\%d.jpg' %(filenum_after+1)
                     i.save(save_name_before)
                     j.save(save_name_after)
             # delete saved calibration
@@ -558,14 +558,16 @@ class imagelabeler(object):
                     self.wait = False
                     return
                 elif answer == 'yes':
-                    # choose an work_dir if the value of it is None
-                    if self.work_dir is None:
-                        self.work_dir = askdirectory()
+                    # choose an work_dir
+                    workdir = askdirectory()
+                    if workdir == '':
+                        return
+                    self.work_dir = workdir
                     save_path = self.work_dir + '\\UnlabeledImages'
                     self.mkdir(save_path)
                     for j in range(0,len(self.img_tank)):
                         filenum = len(os.listdir(save_path))
-                        save_name = save_path + '\\ %d.jpg' %(filenum+1)
+                        save_name = save_path + '\\%d.jpg' %(filenum+1)
                         img = self.img_tank[j]
                         img.save(save_name)
                     save_name = save_path + '\\Source.jpg'

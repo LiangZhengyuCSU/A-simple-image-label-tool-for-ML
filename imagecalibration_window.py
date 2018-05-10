@@ -174,7 +174,7 @@ class imagecalibration_window(tk.Toplevel):
     def ok(self):
         # save the calibrated image:
         if (not self.boundingbox in self.parent.calibrated_boundingbox_after) or\
-         not self.parent.img_pointer in self.parent.index_calibrated_img.append :
+         not self.parent.img_pointer in self.parent.index_calibrated_img:
             self.parent.calibrated_boundingbox_before.append(self.parent.boundingbox_tank [self.parent.img_pointer-1]) 
             self.parent.calibrated_boundingbox_after.append(self.boundingbox)
             self.parent.calibrated_img_before.append(self.parent.img_tank[self.parent.img_pointer-1])    
