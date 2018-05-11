@@ -1,3 +1,11 @@
+# -*- coding:utf-8 -*-  
+#----------------------------------------------------------------------------------#  
+# Name:       A simple image labeling tool-method_manual                           #
+# Coder:      Zhengyu Liang at Central South Univ.                                 #
+# Date:       May, 11, 2018                                                        #
+# Git:        https://github.com/LiangZhengyuCSU/A-simple-image-label-tool-for-ML  #    
+#----------------------------------------------------------------------------------# 
+
 ### ---------------- Import pkgs ---------------- ###
 import os
 import re
@@ -9,19 +17,17 @@ import tkinter.messagebox as messagebox
 from queue import Queue
 from tkinter.filedialog import askdirectory
 import glob
-## child windows ##
+## Child windows ##
 import window_size_setting
 import selective_search_window
 import selectivesearch_setting
 import imagecalibration_window
 ## ------------- ##
-
 ## import an open source selctive search package avaliable on https://github.com/AlpacaDB/selectivesearch ##
 import selectivesearch 
 ## ------------ one can also use "pip install selectivesearch" to install this package ------------------ ##
 
 ### ---------------- Import pkgs ---------------- ###
-
 class imagelabeler(object):
 
     def __init__(self):
@@ -48,7 +54,7 @@ class imagelabeler(object):
         self.maximum_box_size = 10000 # the maximum boxsize (100x100 for default)
         self.minimum_box_size = 100 # the minimum boxsize (10x10 for default)
         # bounding boxes arguments #
-        self.boundingbox_tank = [] # used to catch the outputed bounding box (only in selective search)
+        self.boundingbox_tank = [] # used to catch the outputed bounding box 
         self.img_tank = []
         self.img_label = []
         self.img_pointer = 0
@@ -69,7 +75,6 @@ class imagelabeler(object):
         # the window
         self.window = tk.Tk()
         self.window.title('Labeler')
-        self.window.geometry('740x360')
         self.window.resizable(False,False)
         ### components used to show the image ###
         # the label frame
