@@ -364,7 +364,7 @@ class imagelabeler(object):
             if unlabel_image_path == '':
                 return
 
-            try:#save the bounding box
+            try:#load the bounding box
                 bb = np.load(unlabel_image_path + '\\Boundingbox.npy')
                 bb = bb.tolist()
                 self.boundingbox_tank = bb
@@ -373,7 +373,7 @@ class imagelabeler(object):
                 messagebox.showwarning(title='warning',message='Error encounted when importing the bounding box')
                 return     
 
-            try:#save the source image
+            try:#load the source image
                 self.source_img = Image.open(os.path.join(unlabel_image_path, 'Source.jpg'))#import the source image
             except:
                 messagebox.showwarning(title='warning',message='Error encounted when opening the source image')
@@ -839,6 +839,7 @@ class imagelabeler(object):
         else:
             # do nothing if the path exist
             return False
+            
     def resort_unlabelimg_path(self,pathlist):
         new_pathlist = []
         for i in range (0,len(pathlist)-1):

@@ -2,7 +2,7 @@
 #----------------------------------------------------------------------------------#  
 # Name:       A simple image labeling tool-method_semiauto                         #
 # Coder:      Zhengyu Liang at Central South Univ.                                 #
-# Date:       May, 11, 2018                                                        #
+# Date:       May, 14, 2018                                                        #
 # Git:        https://github.com/LiangZhengyuCSU/A-simple-image-label-tool-for-ML  #    
 #----------------------------------------------------------------------------------# 
 
@@ -17,6 +17,7 @@ import tkinter.messagebox as messagebox
 from queue import Queue
 from tkinter.filedialog import askdirectory
 import glob
+import time
 ### ---------------- Import pkgs ---------------- ###
 
 class imagelabeler_semiauto(object):
@@ -66,21 +67,21 @@ class imagelabeler_semiauto(object):
         # The import button
         self.Import_button = tk.Button(self.window,command=self.import_image,text='Import source image'
         ,font=('Times New Roman',12),bg='white',state='normal',relief='raised')
-        self.Import_button.grid(row = 0, column = 1)
+        self.Import_button.grid(row = 0, column = 4)
         # The img canvas  
         self.img_canvas = tk.Canvas(self.window, cursor='circle',width=800,height=600,bg='black')  
         self.img_canvas.bind("<Button-1>", self.LClick_mouse_incanvas)
         self.img_canvas.bind("<Button-2>", self.MClick_mouse_incanvas)
         self.img_canvas.bind("<Button-3>", self.RClick_mouse_incanvas)  
         self.img_canvas.bind("<Motion>", self.MouseMove)  
-        self.img_canvas.grid(row = 1, column = 0, rowspan = 8, sticky = 'nw')
+        self.img_canvas.grid(row = 1, column = 0, rowspan = 8, columnspan = 4, sticky = 'nw')
         # The mouse position reminder
         self.mouse_position_label = tk.Label(self.window,text='Cursor position\nX:null,Y:null')
-        self.mouse_position_label.grid(row = 9, column = 1)
+        self.mouse_position_label.grid(row = 9, column = 4)
 
         # frame that contains both the list box and the scrollbar
         self.listbox_frame=tk.LabelFrame(self.window,text='Bounding boxes',font=('Times New Roman',12))
-        self.listbox_frame.grid(row=1,column=1, rowspan = 4)
+        self.listbox_frame.grid(row=1,column=4, rowspan = 4)
         # the scrollbar attach to the bb browser
         self.list_scrollbar = tk.Scrollbar(self.listbox_frame) 
         self.list_scrollbar.pack(side='right', fill='y')
@@ -91,15 +92,23 @@ class imagelabeler_semiauto(object):
         # the delete button
         self.Delete_button = tk.Button(self.window,command=self.delete_BB,text='Delete'
         ,font=('Times New Roman',12),bg='white',state='normal',relief='raised', width = 15)
-        self.Delete_button.grid(row = 6, column = 1)
+        self.Delete_button.grid(row = 6, column = 4)
         # the hide button
         self.Hide_button = tk.Button(self.window,command=self.Hide_Show_BB,text='Hide | Show'
         ,font=('Times New Roman',12),bg='white',state='normal',relief='raised', width = 15)
-        self.Hide_button.grid(row = 7, column = 1)
+        self.Hide_button.grid(row = 7, column = 4)
         # the Change BBcolor button
         self.Changecolor_button = tk.Button(self.window,command=self.changeBB_color,text='Change Color'
         ,font=('Times New Roman',12),bg=self.BBcolor ,state='normal', width = 15)
-        self.Changecolor_button.grid(row = 8, column = 1)
+        self.Changecolor_button.grid(row = 8, column = 4)
+        # the save button
+        self.Save_button= tk.Button(self.window,command=self.save_func,text='Save'
+        ,font=('Times New Roman',12),bg='white',state='normal',relief='raised', width = 15)
+        self.Save_button.grid(row = 9, column = 0)
+        # the load button
+        self.Load_button= tk.Button(self.window,command=self.load_func,text='Load'
+        ,font=('Times New Roman',12),bg='white',state='normal',relief='raised', width = 15)
+        self.Load_button.grid(row = 9, column = 1)
 
     # arguments functions
     def init_img(self):
@@ -255,9 +264,7 @@ class imagelabeler_semiauto(object):
     def import_image(self):
         '''
         Import imgfile as the source img.
-        '''
-        if self.wait:
-            return        
+        '''       
         answer = 'yes'
         if len(self.boundingbox_tank)>0:
             answer=messagebox.askquestion(title='Attention please',
@@ -279,6 +286,86 @@ class imagelabeler_semiauto(object):
             self.img_name_label.config(text=filename)
         elif answer == 'no':
             return
+    def load_func(self):
+        '''
+        Load the source img and boundingboxes
+        '''
+        answer = 'yes'
+        if len(self.boundingbox_tank)>0:
+            answer=messagebox.askquestion(title='Attention please',
+            message='Importing a new source image will delete all unsaved images\n, are you still want to import another image?')
+        if  answer == 'yes':
+            # find sourceimg and boundingboxfile
+            filetypes =[("jpg", '*.jpg',),  
+                    ("PNG", '*.png',),  
+                    ("tif", '*.tif',)]  
+            img_filename = tkfd.askopenfilename(filetypes=filetypes)
+            if img_filename == '':
+                return
+            filetypes =[("BoundingBox", '*.npy')] 
+            BB_filename = tkfd.askopenfilename(filetypes=filetypes)
+            if BB_filename == '':
+                return
+
+            self.init_img() 
+            try: #load image file
+                self.source_img = Image.open(img_filename)
+            except:
+                messagebox.showwarning(title='warning',message='Error encounted when opening the source image')
+                return
+            self.source_img_size = [self.source_img.width,self.source_img.height]
+            self.source_img_show = self.source_img.resize((self.show_img_size[0],
+                self.show_img_size[1]))
+            self.src_imported = True
+            self.Show_source_img()
+            self.img_name_label.config(text=img_filename)
+            
+            try:#load the bounding box
+                bb = np.load(BB_filename)
+                bb = bb.tolist()
+                self.boundingbox_tank = bb
+            except:
+                messagebox.showwarning(title='warning',message='Error encounted when importing the bounding box')
+                return
+            # initiate the hidden status
+            for _ in range(0,len(self.boundingbox_tank)):
+                self.BB_ishide.append(False)
+            self.refresh_BB()
+
+
+
+
+        elif answer == 'no':
+            return
+        
+    
+    def save_func(self):
+        '''
+        Save the source img with boundingboxes
+        '''
+        if not self.src_imported:
+            messagebox.showwarning(title='warning',message='Please import the source image first')
+            return
+        if not self.boundingbox_tank:
+            messagebox.showwarning(title='warning',message='The bounding box tank is empty')
+            return
+        workdir = askdirectory() # ask an directory
+        if workdir == '':
+            return      
+        save_path = workdir + '\\Boundingboxes'
+        cur_time = time.strftime('%Y-%m-%d-%H-%M-%S',time.localtime(time.time()))  
+        self.mkdir(save_path)
+        # save the source img
+        save_name = os.path.join(save_path, 'Source'+cur_time+'.jpg')
+        self.source_img.save(save_name)
+        # save the bounding box
+        save_name = os.path.join(save_path, 'Boundingboxes'+cur_time)
+        np.save(save_name,np.array(self.boundingbox_tank))
+        messagebox.showinfo(title='information',message='%d Bonding boxes has been saved'%(len(self.boundingbox_tank)))  
+        self.init_img()
+        self.refresh_BB()
+        self.img_canvas.delete('all')
+         
 
     
 
@@ -363,7 +450,24 @@ class imagelabeler_semiauto(object):
         self.Mouse_status['X'], self.Mouse_status['Y'] = None, None
         self.Mouse_status['IsClicked'] = False
         self.Current_BBrectangle = None
-        self.Current_boundingbox = [None,None,None,None] 
+        self.Current_boundingbox = [None,None,None,None]
+        
+    def mkdir(self,path):
+        '''Check if the path exist, if not, make the path'''
+        # exclude the space 
+        path = path.strip()
+        # exclude the '\' mark in the end of the path 
+        path = path.rstrip("\\")
+        # see if the path exist
+        isExists = os.path.exists(path)
+        if not isExists:
+            # create the path if not exist
+            os.makedirs(path) 
+            return True
+        else:
+            # do nothing if the path exist
+            return False
+         
 
 
 
