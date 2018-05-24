@@ -11,7 +11,7 @@ import os
 import re
 import tkinter as tk
 import numpy as np 
-from PIL import Image,ImageTk
+from PIL import Image,ImageTk,ImageDraw
 import tkinter.filedialog as tkfd
 import tkinter.messagebox as messagebox
 from queue import Queue
@@ -47,7 +47,7 @@ class imagelabeler_semiauto(object):
         # other arguments
         self.guideline = True
         self.BBcolor = 'Yellow'
-        self.BBcolortank = ['Yellow','Blue','Cyan','Green','White','red']        
+        self.BBcolortank = ['Yellow','Blue','Cyan','Green','White','Red']        
         # launch the UI
         self.init_UI()
     
@@ -133,6 +133,7 @@ class imagelabeler_semiauto(object):
         self.wait = False # busy flag
         self.work_dir = None
         self.Mouse_status = {'IsClicked': False,'X': None,'Y': None}
+        self.img_name_label.config(text=self.source_img_path)
 
 
     # event function
@@ -302,7 +303,7 @@ class imagelabeler_semiauto(object):
             img_filename = tkfd.askopenfilename(filetypes=filetypes)
             if img_filename == '':
                 return
-            filetypes =[("BoundingBox", '*.npy')] 
+            filetypes =[("BoundingBox", '*.BBX')] 
             BB_filename = tkfd.askopenfilename(filetypes=filetypes)
             if BB_filename == '':
                 return
@@ -312,20 +313,22 @@ class imagelabeler_semiauto(object):
                 self.source_img = Image.open(img_filename)
             except:
                 messagebox.showwarning(title='warning',message='Error encounted when opening the source image')
+                self.init_img() 
                 return
             self.source_img_size = [self.source_img.width,self.source_img.height]
             self.source_img_show = self.source_img.resize((self.show_img_size[0],
                 self.show_img_size[1]))
             self.src_imported = True
             self.Show_source_img()
-            self.img_name_label.config(text=img_filename)
+            self.source_img_path = img_filename
+            self.img_name_label.config(text=self.source_img_path)
             
             try:#load the bounding box
-                bb = np.load(BB_filename)
-                bb = bb.tolist()
+                bb = self.load_BB(BB_filename)
                 self.boundingbox_tank = bb
             except:
                 messagebox.showwarning(title='warning',message='Error encounted when importing the bounding box')
+                self.init_img() 
                 return
             # initiate the hidden status
             for _ in range(0,len(self.boundingbox_tank)):
@@ -359,8 +362,8 @@ class imagelabeler_semiauto(object):
         save_name = os.path.join(save_path, 'Source'+cur_time+'.jpg')
         self.source_img.save(save_name)
         # save the bounding box
-        save_name = os.path.join(save_path, 'Boundingboxes'+cur_time)
-        np.save(save_name,np.array(self.boundingbox_tank))
+        save_name = os.path.join(save_path, 'Boundingboxes'+cur_time+'.BBX')
+        self.save_BB(save_name)
         messagebox.showinfo(title='information',message='%d Bonding boxes has been saved'%(len(self.boundingbox_tank)))  
         self.init_img()
         self.refresh_BB()
@@ -430,16 +433,16 @@ class imagelabeler_semiauto(object):
                 x1,y1,x2,y2 = self.show_img_size[0]*self.boundingbox_tank[i][0],self.show_img_size[1]*self.boundingbox_tank[i][1],\
                 self.show_img_size[0]*self.boundingbox_tank[i][2],self.show_img_size[1]*self.boundingbox_tank[i][3]
                 
-                if self.BB_ishide[i]:# judge if the bounding box has been hidden
+                if self.BB_ishide[i]:# see if the bounding box has been hidden
                     self.Current_BBrectangle = self.img_canvas.create_rectangle(x1,y1,x2,y2,
                         width=2,outline=self.BBcolor,state='hidden')
                     self.BBmarker_id_tank.append(self.img_canvas.create_text((x1+x2)/2,(y1+y2)/2,
-                    text='[%d]'%(len(self.BBmarker_id_tank)+1),fill=self.BBcolor,state='hidden'))
+                    text='[%d]'%(i+1),fill=self.BBcolor,state='hidden'))
                 else:
                     self.Current_BBrectangle = self.img_canvas.create_rectangle(x1,y1,x2,y2,
                         width=2,outline=self.BBcolor)
                     self.BBmarker_id_tank.append(self.img_canvas.create_text((x1+x2)/2,(y1+y2)/2,
-                    text='[%d]'%(len(self.BBmarker_id_tank)+1),fill=self.BBcolor))
+                    text='[%d]'%(i+1),fill=self.BBcolor))
 
                 self.BBrect_id_tank.append(self.Current_BBrectangle)
 
@@ -467,7 +470,27 @@ class imagelabeler_semiauto(object):
         else:
             # do nothing if the path exist
             return False
-         
+
+    def save_BB(self,filename):
+        '''Save Bounding box into ASCII file'''
+        f = open(filename, 'w')
+        for i in self.boundingbox_tank:
+            for j in i:
+                f.write('%f '%j)
+            f.write('\n')
+        f.close()
+    
+    def load_BB(self,filename):
+        '''Load Bounding boxes from ASCII file'''
+        bb=[]
+        f = open(filename)
+        line = f.readline() 
+        while line:
+            bb.append(list(map(float,line.strip().split(' '))))
+            line = f.readline()
+        f.close()
+        return bb
+
 
 
 
