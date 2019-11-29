@@ -62,8 +62,8 @@ class imagelabeler_semiauto(object):
         self.window.title('Labeler')
         self.window.resizable(False,False)
         # The filename reminder
-        self.img_name_label = tk.Label(self.window,text=self.source_img_path)
-        self.img_name_label.grid(row = 0, column = 0, sticky = 'w')
+        self.img_name_label = tk.Label(self.window,text=self.source_img_path, width = 100)
+        self.img_name_label.grid(row = 0, column = 0, sticky = 'w', columnspan = 4)
         # The import button
         self.Import_button = tk.Button(self.window,command=self.import_image,text='Import source image'
         ,font=('Times New Roman',12),bg='white',state='normal',relief='raised')
@@ -104,11 +104,11 @@ class imagelabeler_semiauto(object):
         # the save button
         self.Save_button= tk.Button(self.window,command=self.save_func,text='Save'
         ,font=('Times New Roman',12),bg='white',state='normal',relief='raised', width = 15)
-        self.Save_button.grid(row = 9, column = 0)
+        self.Save_button.grid(row = 9, column = 0, sticky = 'w')
         # the load button
         self.Load_button= tk.Button(self.window,command=self.load_func,text='Load'
         ,font=('Times New Roman',12),bg='white',state='normal',relief='raised', width = 15)
-        self.Load_button.grid(row = 9, column = 1)
+        self.Load_button.grid(row = 9, column = 1, sticky = 'w')
 
     # arguments functions
     def init_img(self):
@@ -153,7 +153,7 @@ class imagelabeler_semiauto(object):
             # create the BB
             self.Current_boundingbox = [x1/self.show_img_size[0],y1/self.show_img_size[1]
                 ,x2/self.show_img_size[0],y2/self.show_img_size[1]]
-            # the bounding boxes ,stored as relative coordinate
+            # the bounding boxes ,stored as relative coordinate (left top right bottom)
             self.BBrect_id_tank.append(self.Current_BBrectangle)
             self.boundingbox_tank.append(self.Current_boundingbox)
             self.BB_ishide.append(False)
